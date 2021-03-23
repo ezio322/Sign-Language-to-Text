@@ -8,13 +8,13 @@ import operator
 import time
 import sys, os
 import matplotlib.pyplot as plt
-import hunspell
+#import hunspell
 from string import ascii_uppercase
 
 class Application:
     def __init__(self):
-	self.directory = 'model'
-        self.hs = hunspell.HunSpell('/usr/share/hunspell/en_US.dic', '/usr/share/hunspell/en_US.aff')
+        self.directory ='model\\'
+        #self.hs = hunspell.HunSpell('/usr/share/hunspell/en_US.dic','/usr/share/hunspell/en_US.aff')
         self.vs = cv2.VideoCapture(0)
         self.current_image = None
         self.current_image2 = None
@@ -29,7 +29,7 @@ class Application:
         self.model_json_dru = self.json_file_dru.read()
         self.json_file_dru.close()
         self.loaded_model_dru = model_from_json(self.model_json_dru)
-        self.loaded_model_dru.load_weights("model-bw_dru.h5")
+        self.loaded_model_dru.load_weights(self.directory+"model-bw_dru.h5")
 
         self.json_file_tkdi = open(self.directory+"model-bw_tkdi.json" , "r")
         self.model_json_tkdi = self.json_file_tkdi.read()
@@ -82,11 +82,11 @@ class Application:
         self.T4.config(text = "Suggestions",fg="red",font = ("Courier",40,"bold"))
 
         self.btcall = tk.Button(self.root,command = self.action_call,height = 0,width = 0)
-        self.btcall.config(text = "About",font = ("Courier",14))
+        self.btcall.config(text = "about",font = ("Courier",14))
         self.btcall.place(x = 825, y = 0)
 
         self.bt1=tk.Button(self.root, command=self.action1,height = 0,width = 0)
-        self.bt1.place(x = 26,y=890)
+        self.bt1.place(x = 825,y=10)
         #self.bt1.grid(padx = 10, pady = 10)
         self.bt2=tk.Button(self.root, command=self.action2,height = 0,width = 0)
         self.bt2.place(x = 325,y=890)
@@ -110,6 +110,7 @@ class Application:
     def video_loop(self):
         ok, frame = self.vs.read()
         if ok:
+            print("vidoe ok")
             cv2image = cv2.flip(frame, 1)
             x1 = int(0.5*frame.shape[1])
             y1 = 10
@@ -127,6 +128,8 @@ class Application:
             th3 = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,11,2)
             ret, res = cv2.threshold(th3, 70, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
             self.predict(res)
+            print(self.current_symbol)
+            print(self.word)
             self.current_image2 = Image.fromarray(res)
             imgtk = ImageTk.PhotoImage(image=self.current_image2)
             self.panel2.imgtk = imgtk
@@ -134,7 +137,8 @@ class Application:
             self.panel3.config(text=self.current_symbol,font=("Courier",50))
             self.panel4.config(text=self.word,font=("Courier",40))
             self.panel5.config(text=self.str,font=("Courier",40))
-            predicts=self.hs.suggest(self.word)
+            self.bt1.config(text=self.current_symbol,font=("courier",20))
+            """predicts=self.hs.suggest(self.word)
             if(len(predicts) > 0):
                 self.bt1.config(text=predicts[0],font = ("Courier",20))
             else:
@@ -154,7 +158,8 @@ class Application:
             if(len(predicts) > 4):
                 self.bt4.config(text=predicts[4],font = ("Courier",20))
             else:
-                self.bt4.config(text="")                
+                self.bt4.config(text="")"""   
+        print("video loop -----------")             
         self.root.after(30, self.video_loop)
     def predict(self,test_image):
         test_image = cv2.resize(test_image, (128,128))
@@ -231,11 +236,8 @@ class Application:
                 self.blank_flag = 0
                 self.word += self.current_symbol
     def action1(self):
-    	predicts=self.hs.suggest(self.word)
-    	if(len(predicts) > 0):
-            self.word=""
-            self.str+=" "
-            self.str+=predicts[0]
+        self.root1 = tk.Toplevel(self.root)
+    	
     def action2(self):
     	predicts=self.hs.suggest(self.word)
     	if(len(predicts) > 1):
@@ -273,7 +275,7 @@ class Application:
     def action_call(self) :
         
         self.root1 = tk.Toplevel(self.root)
-        self.root1.title("About")
+    """    self.root1.title("About")
         self.root1.protocol('WM_DELETE_WINDOW', self.destructor1)
         self.root1.geometry("900x900")
         
@@ -332,7 +334,7 @@ class Application:
         self.tx6 = tk.Label(self.root1)
         self.tx6.place(x = 230,y = 670)
         self.tx6.config(text = "Dr. Vrijendra Singh", font = ("Courier",30,"bold"))
-
+    """
 print("Starting Application...")
 pba = Application()
 pba.root.mainloop()
